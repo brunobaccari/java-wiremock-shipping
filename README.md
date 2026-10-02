@@ -1,5 +1,7 @@
 # Java e WireMock — cotação de frete
 
+[English version](README.en.md)
+
 Um cliente HTTP em Java 21 e testes JUnit 5 contra uma API virtualizada com WireMock. O objetivo é conferir o que o cliente envia, como interpreta uma cotação e como responde a falhas do serviço.
 
 ## Executar
