@@ -30,6 +30,8 @@ O WireMock reinicia stubs e histórico entre testes. Os cenários não chamam tr
 
 `src/main/java/portfolio/ShippingClient.java` contém o cliente. `src/test/java/portfolio/ShippingClientTest.java` define stubs, falhas controladas e verificações de requisições. O CI executa `mvn verify` e guarda JUnit em artifacts.
 
+Em **Actions**, abra a execução: **Summary** apresenta contagens e status da etapa; **Artifacts** permite baixar `junit-results` com XML JUnit, relatórios de texto do Surefire e uma cópia do resumo. Os arquivos ficam disponíveis por sete dias, inclusive em falhas. Ausência de relatório é indicada como execução não confirmada e falha a etapa de publicação do resumo.
+
 [Estratégia e comunicação de resultados](docs/test-strategy.md) · [Execuções e artifacts no Actions](https://github.com/brunobaccari/java-wiremock-shipping/actions).
 
 Referências: [WireMock com JUnit Jupiter](https://wiremock.org/docs/junit-jupiter/), [simulação de falhas](https://wiremock.org/docs/simulating-faults/), [cenários com estado](https://wiremock.org/docs/stateful-behaviour/).

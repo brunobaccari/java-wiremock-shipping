@@ -6,3 +6,5 @@
 - Preserve a organização atual. Extraia uma keyword ou helper quando houver repetição real.
 - Sem sleeps para esconder falhas. Espere por estado observável e investigue a causa antes de adicionar retry.
 - Execute o comando documentado. Informe o que rodou e o que continua sem verificação.
+- Relatórios de execução, screenshots, logs e evidências ficam em diretórios ignorados e nos artifacts do Actions; não versionar `EVIDENCIAS.md` nem saídas geradas.
+- Fixtures, dados de entrada e resultados esperados dos testes são código versionado; não confundir com relatórios de execução.

@@ -8,6 +8,14 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Verificar arquivos versionados
+        shell: bash
+        run: |
+          tracked=$(git ls-files --cached --ignored --exclude-standard)
+          if [ -n "$tracked" ]; then
+            printf 'Arquivos ignorados versionados:\n%s\n' "$tracked"
+            exit 1
+          fi
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -15,9 +23,50 @@ jobs:
           cache: maven
       - run: cp .env.example .env
       - run: mvn -B -ntp verify
+        id: tests
+      - name: Publish test summary
+        if: always()
+        env:
+          TEST_OUTCOME: ${{ steps.tests.outcome }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          folder = Path('target/surefire-reports')
+          cases, problem = [], ''
+          try:
+              for report in sorted(folder.glob('TEST-*.xml')):
+                  cases.extend(ET.parse(report).getroot().iter('testcase'))
+              if not cases:
+                  problem = 'No JUnit test cases were recorded; execution is unconfirmed.'
+          except (OSError, ET.ParseError):
+              problem = 'JUnit report could not be read; counts may be incomplete.'
+          failed = sum(c.find('failure') is not None for c in cases)
+          errors = sum(c.find('error') is not None for c in cases)
+          skipped = sum(c.find('skipped') is not None for c in cases)
+          summary = (
+              '## Shipping client — Java / WireMock\n\n'
+              f"Execution step: **{os.environ.get('TEST_OUTCOME', 'unknown')}**\n\n"
+              '| Total | Passed | Failed | Errors | Skipped |\n'
+              '| --- | --- | --- | --- | --- |\n'
+              f'| {len(cases)} | {len(cases) - failed - errors - skipped} | {failed} | {errors} | {skipped} |\n\n'
+              f'{problem}\n\n'
+              'Download **junit-results** below for JUnit XML and Surefire text reports. Retention: 7 days.\n\n'
+              'Scope: Java 21 client against WireMock. No real shipping provider or external contract was validated.\n'
+          )
+          folder.mkdir(parents=True, exist_ok=True)
+          (folder / 'summary.md').write_text(summary, encoding='utf-8')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as output:
+              output.write(summary)
+          if problem:
+              raise SystemExit(problem)
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: junit-results
           path: target/surefire-reports/
           retention-days: 7
+          if-no-files-found: error
