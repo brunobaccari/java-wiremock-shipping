@@ -106,7 +106,18 @@ class ShippingClientTest {
             "null"})
     void rejectsCoercionOverflowAndTrailingJson(String body) {
         api.stubFor(post("/quotes").willReturn(okJson(body)));
-        assertThrows(IOException.class, () -> client.quote("13480000"));
+        var error = assertThrows(IOException.class, () -> client.quote("13480000"));
+        assertEquals("Invalid shipping quote contract", error.getMessage());
+        api.verify(1, postRequestedFor(urlEqualTo("/quotes")));
+    }
+
+    @Test
+    void parsingErrorsDoNotExposeProviderValues() {
+        api.stubFor(post("/quotes").willReturn(okJson(
+                "{\"amount\":\"private-provider-value\",\"currency\":\"BRL\",\"deliveryDays\":3}")));
+        var error = assertThrows(IOException.class, () -> client.quote("13480000"));
+        assertEquals("Invalid shipping quote contract", error.getMessage());
+        assertNull(error.getCause());
         api.verify(1, postRequestedFor(urlEqualTo("/quotes")));
     }
 

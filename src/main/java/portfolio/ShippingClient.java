@@ -1,6 +1,7 @@
 package portfolio;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -55,7 +56,12 @@ public class ShippingClient {
         if (response.statusCode() != 200) {
             throw new IOException("Shipping API returned HTTP " + response.statusCode());
         }
-        Quote quote = json.readValue(response.body(), Quote.class);
+        Quote quote;
+        try {
+            quote = json.readValue(response.body(), Quote.class);
+        } catch (JsonProcessingException error) {
+            throw new IOException("Invalid shipping quote contract");
+        }
         if (quote == null || quote.amount() == null || quote.amount().signum() < 0
                 || !"BRL".equals(quote.currency()) || quote.deliveryDays() == null || quote.deliveryDays() < 1) {
             throw new IOException("Invalid shipping quote contract");
