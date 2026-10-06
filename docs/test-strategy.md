@@ -20,3 +20,7 @@ Technical: “The request journal shows one POST for the timeout scenario. The c
 Non-technical: “The client reports unavailable shipping quotes instead of displaying an invented price. These checks use a simulated provider; a real integration remains outside this result.”
 
 Defects should include input, expected contract, observed response, client exception and sanitized evidence. Triage → fix → reproduce original case → related regression → close or reopen. Do not paste authorization headers into Jira.
+
+## Contract boundary
+
+Numeric strings and fractional delivery days must not be silently converted. Concatenated JSON and overflowing integers are invalid; parser errors must not expose provider values or nested causes. The parameterized contract cases and sanitization test block acceptance when these guarantees regress. The exercise does not validate a real carrier contract.

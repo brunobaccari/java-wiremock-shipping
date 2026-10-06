@@ -28,12 +28,18 @@ WireMock resets stubs and request history between tests. These tests do not call
 
 ## Structure and evidence
 
-`src/main/java/portfolio/ShippingClient.java` contains the client. `src/test/java/portfolio/ShippingClientTest.java` defines stubs, controlled failures and request verification. CI runs `mvn verify` and uploads JUnit reports. The recorded CI run passed all 16 cases.
+`src/main/java/portfolio/ShippingClient.java` contains the client. `src/test/java/portfolio/ShippingClientTest.java` defines stubs, controlled failures and request verification. CI runs `mvn verify` and uploads JUnit reports. Test counts and results belong to each Actions run.
 
 Open a run under **Actions**: **Summary** shows counts and step status; **Artifacts** provides `junit-results` with JUnit XML, Surefire text reports and a copy of the summary. Files are retained for seven days, including failed test runs. A missing report is identified as unconfirmed execution and fails the summary step.
 
 [Test strategy and reporting examples](docs/test-strategy.md) · [Actions runs and artifacts](https://github.com/brunobaccari/java-wiremock-shipping/actions).
 
 References: [WireMock JUnit Jupiter](https://wiremock.org/docs/junit-jupiter/), [fault simulation](https://wiremock.org/docs/simulating-faults/) and [stateful scenarios](https://wiremock.org/docs/stateful-behaviour/).
+
+## Blocking criteria and triage
+
+The main risks are accepting an invalid quote and exposing provider content through errors. Numeric strings, fractional/overflowing delivery days and concatenated JSON are rejected. Public parsing errors contain neither the response body nor the parser cause.
+
+Contract failures, unexpected timeout behavior, duplicate POSTs and missing reports block the run. Compare the artifact JUnit and request verification with the scenario stub: build/runner issues are infrastructure; reproducible client differences are regressions. No retries to turn failures into passes. This exercise defines its own contract; a real provider needs separate verification.
 
 Commit dates in this portfolio were reorganized retroactively; Actions runs retain their actual execution dates.

@@ -36,4 +36,10 @@ Em **Actions**, abra a execução: **Summary** apresenta contagens e status da e
 
 Referências: [WireMock com JUnit Jupiter](https://wiremock.org/docs/junit-jupiter/), [simulação de falhas](https://wiremock.org/docs/simulating-faults/), [cenários com estado](https://wiremock.org/docs/stateful-behaviour/).
 
+## Critério de bloqueio e triagem
+
+O risco principal é aceitar uma cotação inválida ou expor conteúdo do fornecedor nos erros. Valores numéricos em texto, prazo fracionário/fora do limite de inteiro e JSON concatenado são recusados. O erro público não inclui o corpo recebido nem a causa do parser.
+
+Falha de contrato, timeout fora do esperado, repetição indevida de POST ou relatório ausente bloqueia a execução. Compare o JUnit do artifact e a verificação de requisições com o stub do caso: problema de build/runner é infraestrutura; diferença reproduzível no cliente é regressão. Sem retries para transformar falha em aprovação. O contrato é deste exercício; uma API real exige validação própria.
+
 Datas de commits deste portfólio foram reorganizadas retroativamente; as execuções do Actions mantêm suas datas reais.
