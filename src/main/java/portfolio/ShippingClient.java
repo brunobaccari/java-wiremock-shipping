@@ -1,6 +1,9 @@
 package portfolio;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -17,7 +20,11 @@ public class ShippingClient {
     private final String token;
     private final Duration timeout;
     private final HttpClient http;
-    private final ObjectMapper json = new ObjectMapper();
+    private final ObjectMapper json = JsonMapper.builder()
+            .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+            .disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT)
+            .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+            .build();
 
     public ShippingClient(URI endpoint, String token, Duration timeout) {
         if (endpoint == null || !java.util.Set.of("http", "https").contains(endpoint.getScheme())

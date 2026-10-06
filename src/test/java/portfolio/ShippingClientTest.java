@@ -95,6 +95,22 @@ class ShippingClientTest {
     }
 
     @ParameterizedTest
+    @ValueSource(strings = {
+            "{\"amount\":\"14.90\",\"currency\":\"BRL\",\"deliveryDays\":3}",
+            "{\"amount\":14.90,\"currency\":\"BRL\",\"deliveryDays\":\"3\"}",
+            "{\"amount\":14.90,\"currency\":\"BRL\",\"deliveryDays\":1.9}",
+            "{\"amount\":14.90,\"currency\":\"BRL\",\"deliveryDays\":2147483648}",
+            "{\"amount\":true,\"currency\":\"BRL\",\"deliveryDays\":3}",
+            "{\"amount\":14.90,\"currency\":\"BRL\",\"deliveryDays\":3} {}",
+            "{\"amount\":null,\"currency\":\"BRL\",\"deliveryDays\":3}",
+            "null"})
+    void rejectsCoercionOverflowAndTrailingJson(String body) {
+        api.stubFor(post("/quotes").willReturn(okJson(body)));
+        assertThrows(IOException.class, () -> client.quote("13480000"));
+        api.verify(1, postRequestedFor(urlEqualTo("/quotes")));
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = {"", "1348000", "134800000", "1348A000", "13480-000"})
     void rejectsInvalidPostalCodeWithoutRequest(String postalCode) {
         assertThrows(IllegalArgumentException.class, () -> client.quote(postalCode));
