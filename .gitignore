@@ -26,3 +26,5 @@ __pycache__/
 htmlcov/
 target/
 *.class
+node_modules/
+.husky/_/

@@ -1,0 +1,6 @@
+tracked=$(git ls-files --cached --ignored --exclude-standard)
+if [ -n "$tracked" ]; then
+  printf 'Arquivos ignorados no índice:\n%s\n' "$tracked"
+  exit 1
+fi
+npm run check:local

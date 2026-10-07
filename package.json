@@ -1,0 +1,11 @@
+{
+  "name": "java-wiremock-shipping",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "check:local": "git diff --cached --check && python scripts/summary.py --self-test"
+  },
+  "devDependencies": {
+    "husky": "9.1.7"
+  }
+}

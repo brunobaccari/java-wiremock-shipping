@@ -45,3 +45,5 @@ Contract failures, unexpected timeout behavior, duplicate POSTs and missing repo
 Commit dates in this portfolio were reorganized retroactively; Actions runs retain their actual execution dates.
 
 The Actions summary lists every scenario, duration, totals and blocking reason. The gate requires the count configured in the workflow, with no failures or skips; missing or invalid JUnit fails the gate. The summary is also included in the artifact.
+
+Husky: with Node 24 and the stack dependencies installed, run `npm ci` to enable pre-commit. `npm run check:local` checks the diff, report gate and existing type/lint checks. The hook also rejects ignored files in the index. Browser, emulator and API tests remain in CI.
