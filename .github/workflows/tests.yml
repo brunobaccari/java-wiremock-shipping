@@ -8,6 +8,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Verificar parser e gate do summary
+        run: python3 scripts/summary.py --self-test
       - name: Verificar arquivos versionados
         shell: bash
         run: |
@@ -24,49 +26,30 @@ jobs:
       - run: cp .env.example .env
       - run: mvn -B -ntp verify
         id: tests
-      - name: Publish test summary
+      - name: Resumo dos testes e completude
         if: always()
         env:
           TEST_OUTCOME: ${{ steps.tests.outcome }}
-        run: |
-          python3 - <<'PY'
-          import os
-          from pathlib import Path
-          import xml.etree.ElementTree as ET
-
-          folder = Path('target/surefire-reports')
-          cases, problem = [], ''
-          try:
-              for report in sorted(folder.glob('TEST-*.xml')):
-                  cases.extend(ET.parse(report).getroot().iter('testcase'))
-              if not cases:
-                  problem = 'No JUnit test cases were recorded; execution is unconfirmed.'
-          except (OSError, ET.ParseError):
-              problem = 'JUnit report could not be read; counts may be incomplete.'
-          failed = sum(c.find('failure') is not None for c in cases)
-          errors = sum(c.find('error') is not None for c in cases)
-          skipped = sum(c.find('skipped') is not None for c in cases)
-          summary = (
-              '## Shipping client — Java / WireMock\n\n'
-              f"Execution step: **{os.environ.get('TEST_OUTCOME', 'unknown')}**\n\n"
-              '| Total | Passed | Failed | Errors | Skipped |\n'
-              '| --- | --- | --- | --- | --- |\n'
-              f'| {len(cases)} | {len(cases) - failed - errors - skipped} | {failed} | {errors} | {skipped} |\n\n'
-              f'{problem}\n\n'
-              'Download **junit-results** below for JUnit XML and Surefire text reports. Retention: 7 days.\n\n'
-              'Scope: Java 21 client against WireMock. No real shipping provider or external contract was validated.\n'
-          )
-          folder.mkdir(parents=True, exist_ok=True)
-          (folder / 'summary.md').write_text(summary, encoding='utf-8')
-          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as output:
-              output.write(summary)
-          if problem:
-              raise SystemExit(problem)
-          PY
+          EXPECTED_TESTS: '25'
+          JUNIT_PATTERN: 'target/surefire-reports/TEST-*.xml'
+          SUMMARY_FILE: 'target/surefire-reports/summary.md'
+          TEST_SCOPE: 'Java 21 / WireMock. API virtualizada; nenhum provedor de frete real.'
+        run: python3 scripts/summary.py
       - uses: actions/upload-artifact@v4
+        id: artifact
         if: always()
         with:
           name: junit-results
           path: target/surefire-reports/
           retention-days: 7
           if-no-files-found: error
+      - name: Link dos resultados
+        if: always()
+        env:
+          ARTIFACT_URL: ${{ steps.artifact.outputs.artifact-url }}
+        run: |
+          if [ -n "$ARTIFACT_URL" ]; then
+            printf '\n[Baixar relatórios e evidências](%s)\n' "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"
+          else
+            printf '\nArtifact indisponível; confira a etapa de upload.\n' >> "$GITHUB_STEP_SUMMARY"
+          fi

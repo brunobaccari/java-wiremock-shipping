@@ -43,3 +43,5 @@ O risco principal é aceitar uma cotação inválida ou expor conteúdo do forne
 Falha de contrato, timeout fora do esperado, repetição indevida de POST ou relatório ausente bloqueia a execução. Compare o JUnit do artifact e a verificação de requisições com o stub do caso: problema de build/runner é infraestrutura; diferença reproduzível no cliente é regressão. Sem retries para transformar falha em aprovação. O contrato é deste exercício; uma API real exige validação própria.
 
 Datas de commits deste portfólio foram reorganizadas retroativamente; as execuções do Actions mantêm suas datas reais.
+
+O summary do Actions lista cada cenário, duração, totais e motivo de bloqueio. O gate exige a quantidade prevista no workflow, sem falhas ou skips; JUnit ausente ou inválido reprova. O resumo também acompanha o artifact.

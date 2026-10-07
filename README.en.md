@@ -43,3 +43,5 @@ The main risks are accepting an invalid quote and exposing provider content thro
 Contract failures, unexpected timeout behavior, duplicate POSTs and missing reports block the run. Compare the artifact JUnit and request verification with the scenario stub: build/runner issues are infrastructure; reproducible client differences are regressions. No retries to turn failures into passes. This exercise defines its own contract; a real provider needs separate verification.
 
 Commit dates in this portfolio were reorganized retroactively; Actions runs retain their actual execution dates.
+
+The Actions summary lists every scenario, duration, totals and blocking reason. The gate requires the count configured in the workflow, with no failures or skips; missing or invalid JUnit fails the gate. The summary is also included in the artifact.
